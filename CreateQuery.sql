@@ -1,10 +1,9 @@
-CREATE DATABASE EscolaDomDinis;
-go
+
 USE EscolaDomDinis;
 go 
 
 CREATE TABLE Aluno (
- Numero_aluno INT PRIMARY KEY,
+ Numero_aluno INT PRIMARY KEY IDENTITY(1,1),
  Numero_turma INT,
  Nome_aluno VARCHAR(100),
  Email VARCHAR(100),
@@ -12,33 +11,33 @@ CREATE TABLE Aluno (
 );
 
 CREATE TABLE Curso (
- Numero_curso INT PRIMARY KEY,
+ Numero_curso INT PRIMARY KEY IDENTITY(1,1),
  Nome VARCHAR(100),
  Numero_edicao INT
 );
 
 CREATE TABLE Turma (
- Numero_turma INT PRIMARY KEY,
+ Numero_turma INT PRIMARY KEY IDENTITY(1,1),
  Numero_curso INT,
  FOREIGN KEY (Numero_curso) REFERENCES Curso(Numero_curso)
 );
 
 CREATE TABLE Disciplina (
- Numero_disciplina INT PRIMARY KEY,
+ Numero_disciplina INT PRIMARY KEY IDENTITY(1,1),
  Nome_disciplina VARCHAR(100),
  Numero_curso INT,
  FOREIGN KEY (Numero_curso) REFERENCES Curso(Numero_curso)
 );
 
 CREATE TABLE Docente (
- Numero_docente INT PRIMARY KEY,
+ Numero_docente INT PRIMARY KEY IDENTITY(1,1),
  Nome_docente VARCHAR(100),
  Endereço VARCHAR(100)
 );
 
 
 CREATE TABLE Questionario (
- Numero_questionario INT PRIMARY KEY,
+ Numero_questionario INT PRIMARY KEY IDENTITY(1,1),
  Numero_pergunta INT,
  Perguntas VARCHAR(255),
  Numero_disciplina INT,
@@ -48,7 +47,7 @@ CREATE TABLE Questionario (
 );
 
 CREATE TABLE Resposta (
- Numero_resposta INT PRIMARY KEY,
+ Numero_resposta INT PRIMARY KEY IDENTITY(1,1),
  Texto VARCHAR(255),
  Numero_aluno INT,
  Numero_questionario INT,
@@ -57,7 +56,7 @@ CREATE TABLE Resposta (
 );
 
 CREATE TABLE Avaliacao (
- Nummero_avaliacao INT PRIMARY KEY,
+ Numero_avaliacao INT PRIMARY KEY IDENTITY(1,1),
  Numero_aluno INT,
  Numero_disciplina INT,
  Nota_avaliacao INT,
