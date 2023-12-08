@@ -15,101 +15,138 @@ conexao = pyodbc.connect(conexao_str)
 # Criação de um cursor
 cursor = conexao.cursor()
 
-# Defina o número de registros que você deseja gerar para cada tabela
-num_alunos = 100
-num_cursos = 10
-num_turmas = 50
-num_disciplinas = 10
-num_docentes = 20
-num_questionarios = 50
-num_respostas = 200
-num_avaliacoes = 150
 
-# Insira dados aleatórios na tabela Curso
-for _ in range(num_cursos):
-   
-    nome_curso = fake.job()
-    numero_edicao = fake.random_int(min=1, max=num_cursos)  # ajuste conforme necessário
-
-    query = f"INSERT INTO Curso (Nome, Numero_edicao) VALUES ('{nome_curso}', {numero_edicao})"
-    cursor.execute(query)
-
-    # Insira dados aleatórios na tabela Turma
-for _ in range(num_turmas):
-    CursoID = fake.random_int(min=1, max=num_cursos)
-    query = f"INSERT INTO Turma (CursoID) VALUES ( {CursoID})"
-    cursor.execute(query)
-
-    # Insira dados aleatórios na tabela Disciplina
-for _ in range(num_disciplinas):
-   
-    nome_disciplina = fake.name()
-    CursoID = fake.random_int(min=1, max=num_cursos)
-    query = f"INSERT INTO Disciplina (Nome_disciplina, CursoID) VALUES ('{nome_disciplina}', {CursoID})"
-    cursor.execute(query)
-
-# Insira dados aleatórios na tabela Docente
-for _ in range(num_docentes):
-   
-    nome_docente = fake.name()
-    endereco_docente = fake.address()
-
-    query = f"INSERT INTO Docente (Nome_docente, Endereço) VALUES ('{nome_docente}', '{endereco_docente}')"
-    cursor.execute(query)
-
-
-# Insira dados aleatórios na tabela Aluno
-for _ in range(num_alunos):
+# Número de registros a serem inseridos
+numAlunos = 1
+numProfessores = 1
+numCursos = 1
+numDisciplinas = 1
+numInscricoes = 1
+numNotas = 1
+# Inserção de dados na tabela Aluno
+for _ in range(numAlunos):
+    try:
+        nome = fake.name()
+        dataNascimento = fake.date()
+        morada = fake.address()[:50]
+        contacto =  fake.random_int(min=100000000, max=999999999)
+        email = fake.email()
+        query = f"INSERT INTO Aluno (nome, dataNascimento, morada,contacto,email) VALUES ('{nome}', '{dataNascimento}', '{morada}','{contacto}','{email}')"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record: {e}")
+    finally:
+        conexao.commit()  
     
-    nome_aluno = fake.name()
-    TurmaID = fake.random_int(min=1, max=num_turmas)
-    email_aluno = fake.email()
-    contato_aluno = 2
+# Inserção de dados na tabela Professor
+for _ in range(numProfessores):
+    try:
+        nome = fake.name()
+        dataNascimento = fake.date()
+        morada = fake.address()[:50]
+        contacto =  fake.random_int(min=100000000, max=999999999)
+        email = fake.email()
+        query = f"INSERT INTO Professor (nome, dataNascimento, morada,contacto,email) VALUES ('{nome}', '{dataNascimento}', '{morada}','{contacto}','{email}')"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record: {e}")
+    finally:
+        conexao.commit()  
+         
+# Inserção de dados na tabela Curso
+for _ in range(numCursos):
+    try:
+        nome = fake.name()
+        descricao = fake.text()[:50]
+        query = f"INSERT INTO Curso (nome) VALUES ('{nome}')"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record: {e}")
+    finally:
+        conexao.commit()  
+        
+# Inserção de dados na tabela Disciplina
 
-    query = f"INSERT INTO Aluno (TurmaID,Nome_aluno,Email,Contato) VALUES ({TurmaID},'{nome_aluno}', '{email_aluno}', '{contato_aluno}')"
-    cursor.execute(query)
+for _ in range(numCursos):
+    try:
+        nome = fake.name()
+        descricao = fake.text()[:50]
+        query = f"INSERT INTO Disciplina (nome) VALUES ('{nome}')"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record: {e}")
+    finally:
+        conexao.commit()  
+        
+        
+# Inserção de dados na tabela Disciplina
+for _ in range(numDisciplinas):
+    try:
+        nome = fake.name()
+
+        # Generate a valid idProfessor value
+        idProfessor = fake.random_int(min=1, max=numProfessores)
+
+        # Ensure that the generated idProfessor exists in the Professor table
+        while True:
+            cursor.execute(f"SELECT 1 FROM Professor WHERE idProfessor = {idProfessor}")
+            if cursor.fetchone():
+                break
+            else:
+                # If idProfessor doesn't exist, generate a new one
+                idProfessor = fake.random_int(min=1, max=numProfessores)
+
+        query = f"INSERT INTO Disciplina (nome, idProfessor) VALUES ('{nome}', {idProfessor})"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record into Disciplina: {e}")
+    finally:
+        conexao.commit()  
+        
+# Inserção de dados na tabela Inscrição
+
+for _ in range(numInscricoes):
+     try:
+        # Generate valid idAluno and idCurso values
+        idAluno = fake.random_int(min=1, max=numAlunos)
+        idCurso = fake.random_int(min=1, max=numCursos)
+
+        # Ensure that the generated idAluno exists in the Aluno table
+        while True:
+            cursor.execute(f"SELECT 1 FROM Aluno WHERE idAluno = {idAluno}")
+            if cursor.fetchone():
+                break
+            else:
+                # If idAluno doesn't exist, generate a new one
+                idAluno = fake.random_int(min=1, max=numAlunos)
+
+        # Insert into Inscricao table
+        query = f"INSERT INTO Inscricao (idAluno, idCurso) VALUES ({idAluno}, {idCurso})"
+        cursor.execute(query)
+     except pyodbc.Error as e:
+        print(f"Error inserting record into Inscricao: {e}")
+     finally:
+        conexao.commit()  
 
 
+# Inserção de dados na tabela Nota
 
-
-
-
-
-
-# Insira dados aleatórios na tabela Avaliacao
-for _ in range(num_avaliacoes):
-    AlunoID = fake.random_int(min=1, max=num_alunos)
-    DisciplinaID = fake.random_int(min=1, max=num_disciplinas)
-    nota_avaliacao = fake.random_int(min=1, max=10)
-
-    query = f"INSERT INTO Avaliacao (AlunoID, DisciplinaID, Nota_avaliacao) VALUES ({AlunoID}, {DisciplinaID}, {nota_avaliacao})"
-    cursor.execute(query)
-
-
-
-# Insira dados aleatórios na tabela Questionario
-for _ in range(num_questionarios):
-    numero_pergunta = fake.random_int(min=1, max=10)
-    perguntas = fake.text(max_nb_chars=255)
-    DisciplinaID = fake.random_int(min=1, max=num_disciplinas)
-    DocenteID = fake.random_int(min=1, max=num_docentes)
-
-    query = f"INSERT INTO Questionario (Numero_pergunta, Perguntas, DisciplinaID, DocenteID) VALUES ({numero_pergunta}, '{perguntas}', {DisciplinaID}, {DocenteID})"
-    cursor.execute(query)
-
-    # Insira dados aleatórios na tabela Resposta
-for _ in range(num_respostas):
-    texto_resposta = fake.text(max_nb_chars=255)
-    numero_aluno_resposta = fake.random_int(min=1, max=num_alunos)
-    numero_questionario_resposta = fake.random_int(min=1, max=num_questionarios)
-
-    query = f"INSERT INTO Resposta (Texto, AlunoID, QuestionarioID) VALUES ('{texto_resposta}', {numero_aluno_resposta}, {numero_questionario_resposta})"
-    cursor.execute(query)
-
+for _ in range(numNotas):
+    try:
+        idAluno = fake.random_int(min=1, max=numAlunos)
+        idDisciplina = fake.random_int(min=1, max=numDisciplinas)
+        nota = fake.random_int(min=0, max=20)
+        query = f"INSERT INTO Nota (idAluno, idDisciplina, nota) VALUES ('{idAluno}', '{idDisciplina}', '{nota}')"
+        cursor.execute(query)
+    except pyodbc.Error as e:
+        print(f"Error inserting record: {e}")
+    finally:
+        conexao.commit()  
+        
 # Commit das alterações
 conexao.commit()
-
+print('Dados gerados e inseridos em todas as tabelas.')
 # Feche a conexão
 conexao.close()
 
-print('Dados gerados e inseridos em todas as tabelas.')
+
