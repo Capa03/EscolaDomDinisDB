@@ -17,12 +17,12 @@ cursor = conexao.cursor()
 
 
 # Número de registros a serem inseridos
-numAlunos = 1
-numProfessores = 1
-numCursos = 1
-numDisciplinas = 1
-numInscricoes = 1
-numNotas = 1
+numAlunos = 10
+numProfessores = 10
+numCursos = 10
+numDisciplinas = 10
+numInscricoes = 10
+numNotas = 10
 # Inserção de dados na tabela Aluno
 for _ in range(numAlunos):
     try:
@@ -66,18 +66,27 @@ for _ in range(numCursos):
         conexao.commit()  
         
 # Inserção de dados na tabela Disciplina
-
-for _ in range(numCursos):
+for _ in range(numDisciplinas):
     try:
         nome = fake.name()
-        descricao = fake.text()[:50]
-        query = f"INSERT INTO Disciplina (nome) VALUES ('{nome}')"
+
+        # Generate a valid idProfessor value
+        idProfessor = fake.random_int(min=1, max=numProfessores)
+
+        # Ensure that the generated idProfessor exists in the Professor table
+        while True:
+            cursor.execute(f"SELECT 1 FROM Professor WHERE idProfessor = {idProfessor}")
+            if cursor.fetchone():
+                break
+            else:
+                # If idProfessor doesn't exist, generate a new one
+                idProfessor = fake.random_int(min=1, max=numProfessores)
+
+        query = f"INSERT INTO Disciplina (nome, idProfessor) VALUES ('{nome}', {idProfessor})"
         cursor.execute(query)
+        print(f"Disciplina inserted: {nome}")
     except pyodbc.Error as e:
-        print(f"Error inserting record: {e}")
-    finally:
-        conexao.commit()  
-        
+        print(f"Error inserting record into Disciplina: {e}")
         
 # Inserção de dados na tabela Disciplina
 for _ in range(numDisciplinas):
