@@ -17,12 +17,12 @@ cursor = conexao.cursor()
 
 
 # Número de registros a serem inseridos
-numAlunos = 10
+numAlunos = 1000
 numProfessores = 10
-numCursos = 10
-numDisciplinas = 10
-numInscricoes = 10
-numNotas = 10
+numCursos = 100
+numDisciplinas = 50
+numInscricoes = 1000
+numNotas = 1000
 # Inserção de dados na tabela Aluno
 for _ in range(numAlunos):
     try:
@@ -30,7 +30,7 @@ for _ in range(numAlunos):
         dataNascimento = fake.date()
         morada = fake.address()[:50]
         contacto =  fake.random_int(min=100000000, max=999999999)
-        email = f"{nome.lower().replace(' ', '_')}@gmail.com"
+        email = f"{nome.lower().replace(' ', '_')}@stu.ipbeja.com"
         query = f"INSERT INTO Aluno (nome, dataNascimento, morada,contacto,email) VALUES ('{nome}', '{dataNascimento}', '{morada}','{contacto}','{email}')"
         cursor.execute(query)
     except pyodbc.Error as e:
@@ -45,7 +45,7 @@ for _ in range(numProfessores):
         dataNascimento = fake.date()
         morada = fake.address()[:50]
         contacto =  fake.random_int(min=100000000, max=999999999)
-        email = fake.email()
+        email = f"{nome.lower().replace(' ', '_')}@ipbeja.com"
         query = f"INSERT INTO Professor (nome, dataNascimento, morada,contacto,email) VALUES ('{nome}', '{dataNascimento}', '{morada}','{contacto}','{email}')"
         cursor.execute(query)
     except pyodbc.Error as e:
@@ -58,7 +58,7 @@ for _ in range(numCursos):
     try:
         nome = fake.name()
         descricao = fake.text()[:50]
-        query = f"INSERT INTO Curso (nome) VALUES ('{nome}')"
+        query = f"INSERT INTO Curso (nome,descricao) VALUES ('{nome}', '{descricao}')"
         cursor.execute(query)
     except pyodbc.Error as e:
         print(f"Error inserting record: {e}")
@@ -119,7 +119,7 @@ for _ in range(numInscricoes):
         # Generate valid idAluno and idCurso values
         idAluno = fake.random_int(min=1, max=numAlunos)
         idCurso = fake.random_int(min=1, max=numCursos)
-
+        dataInscricao = fake.date()
         # Ensure that the generated idAluno exists in the Aluno table
         while True:
             cursor.execute(f"SELECT 1 FROM Aluno WHERE idAluno = {idAluno}")
@@ -130,7 +130,7 @@ for _ in range(numInscricoes):
                 idAluno = fake.random_int(min=1, max=numAlunos)
 
         # Insert into Inscricao table
-        query = f"INSERT INTO Inscricao (idAluno, idCurso) VALUES ({idAluno}, {idCurso})"
+        query = f"INSERT INTO Inscricao (idAluno, idCurso,dataInscricao) VALUES ({idAluno}, {idCurso},{dataInscricao})"
         cursor.execute(query)
      except pyodbc.Error as e:
         print(f"Error inserting record into Inscricao: {e}")
