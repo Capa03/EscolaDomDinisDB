@@ -1,7 +1,7 @@
 from faker import Faker
 import pyodbc
 
-fake = Faker()
+fake = Faker('pt_PT')
 
 # Configuração da conexão com o banco de dados SQL Server
 conexao_str = (
@@ -30,7 +30,7 @@ for _ in range(numAlunos):
         dataNascimento = fake.date()
         morada = fake.address()[:50]
         contacto =  fake.random_int(min=100000000, max=999999999)
-        email = fake.email()
+        email = f"{nome.lower().replace(' ', '_')}@gmail.com"
         query = f"INSERT INTO Aluno (nome, dataNascimento, morada,contacto,email) VALUES ('{nome}', '{dataNascimento}', '{morada}','{contacto}','{email}')"
         cursor.execute(query)
     except pyodbc.Error as e:
