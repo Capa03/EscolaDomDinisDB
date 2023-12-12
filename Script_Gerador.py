@@ -42,6 +42,16 @@ for _ in range(numCursos):
 for _ in range(numTurmas):
     try:
         idCurso = fake.random_int(min=1, max=numCursos)
+
+        # Ensure that the generated idCurso exists in the Curso table
+        while True:
+            cursor.execute(f"SELECT 1 FROM Curso WHERE idCurso = {idCurso}")
+            if cursor.fetchone():
+                break
+            else:
+                # If idCurso doesn't exist, generate a new one
+                idCurso = fake.random_int(min=1, max=numCursos)
+
         query = f"INSERT INTO Turma (idCurso) VALUES ({idCurso})"
         cursor.execute(query)
         conexao.commit()

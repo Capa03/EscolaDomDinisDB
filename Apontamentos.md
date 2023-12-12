@@ -1,3 +1,5 @@
+# Passo 1
+- Criamos a Estrutura da base de dados bem como as Suas Relações.
 
 USE EscolaDomDinis;
 go 
@@ -62,5 +64,3 @@ CREATE TABLE Avaliacao (
  FOREIGN KEY (idAluno) REFERENCES Aluno(idAluno),
  FOREIGN KEY (idDisciplina) REFERENCES Disciplina(idDisciplina)
 );
-
-
