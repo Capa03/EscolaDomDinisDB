@@ -1,38 +1,62 @@
 
 -- Criação dos filegroups
 ALTER DATABASE EscolaDomDinis
-ADD FILEGROUP Primario;
+ADD FILEGROUP FILEGROUP1;
 
 ALTER DATABASE EscolaDomDinis
-ADD FILEGROUP Secundario1;
+ADD FILEGROUP FILEGROUP2;
 
 ALTER DATABASE EscolaDomDinis
-ADD FILEGROUP Secundario2;
+ADD FILEGROUP FILEGROUP3;
+
+ALTER DATABASE EscolaDomDinis
+ADD FILEGROUP FILEGROUP4;
+
+ALTER DATABASE EscolaDomDinis
+ADD FILEGROUP FILEGROUP5;
+
+ALTER DATABASE EscolaDomDinis
+ADD FILEGROUP FILEGROUP6;
 
 -- Adição de ficheiros às filegroups
 ALTER DATABASE EscolaDomDinis
 ADD FILE
-    (NAME = 'Primario1', FILENAME = 'C:\Primario1.ndf')
-TO FILEGROUP Primario;
+    (NAME = 'Primario1', FILENAME = 'E:\FILEGROUP1.ndf')
+TO FILEGROUP FILEGROUP1;
 
 ALTER DATABASE EscolaDomDinis
 ADD FILE
-    (NAME = 'Secundario1_1', FILENAME = 'D:\Secundario1_1.ndf'),
-    (NAME = 'Secundario1_2', FILENAME = 'E:\Secundario1_2.ndf')
-TO FILEGROUP Secundario1;
+    (NAME = 'FILEGROUP2', FILENAME = 'F:\FILEGROUP2.ndf')
+TO FILEGROUP FILEGROUP2;
 
 ALTER DATABASE EscolaDomDinis
 ADD FILE
-    (NAME = 'Secundario2_1', FILENAME = 'F:\Secundario2_1.ndf'),
-    (NAME = 'Secundario2_2', FILENAME = 'G:\Secundario2_2.ndf')
-TO FILEGROUP Secundario2;
+    (NAME = 'FILEGROUP3', FILENAME = 'G:\FILEGROUP3.ndf')
+TO FILEGROUP FILEGROUP3;
 
--- Mover tabelas para filegroups específicos
-ALTER TABLE Escola.Curso
-MOVE TO Primario;
+ALTER DATABASE EscolaDomDinis
+ADD FILE
+    (NAME = 'FILEGROUP4', FILENAME = 'H:\FILEGROUP4.ndf')
+TO FILEGROUP FILEGROUP4;
 
-ALTER TABLE Escola.Aluno
-MOVE TO Secundario1;
+ALTER DATABASE EscolaDomDinis
+ADD FILE
+    (NAME = 'FILEGROUP5', FILENAME = 'I:\FILEGROUP5.ndf')
+TO FILEGROUP FILEGROUP5;
 
-ALTER TABLE Escola.Disciplina
-MOVE TO Secundario2;
+ALTER DATABASE EscolaDomDinis
+ADD FILE
+    (NAME = 'FILEGROUP6', FILENAME = 'J:\FILEGROUP6.ndf')
+TO FILEGROUP FILEGROUP6;
+
+-- Move the Curso table to FILEGROUP1
+USE EscolaDomDinis;
+
+-- Drop the existing clustered index (replace 'idCurso' with the actual name of your clustered index)
+DROP INDEX idCurso ON Escola.Curso;
+
+-- Rebuild the clustered index on the new filegroup
+CREATE CLUSTERED INDEX idCurso
+ON Escola.Curso (idCurso)  -- Replace 'YourPrimaryKeyColumn' with the actual primary key column
+WITH (DROP_EXISTING = ON)
+ON FILEGROUP1;  -- Replace 'FILEGROUP1' with the actual name of your filegroup

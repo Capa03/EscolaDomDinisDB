@@ -1,4 +1,6 @@
 
+
+
 USE EscolaDomDinis;
 go 
 

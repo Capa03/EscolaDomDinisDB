@@ -32,7 +32,7 @@ for _ in range(numCursos):
     try:
         nome = fake.name()
         
-        query = f"INSERT INTO Curso (nome) VALUES ('{nome}')"
+        query = f"INSERT INTO Escola.Curso (nome) VALUES ('{nome}')"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -45,14 +45,14 @@ for _ in range(numTurmas):
 
         # Ensure that the generated idCurso exists in the Curso table
         while True:
-            cursor.execute(f"SELECT 1 FROM Curso WHERE idCurso = {idCurso}")
+            cursor.execute(f"SELECT 1 FROM Escola.Curso WHERE idCurso = {idCurso}")
             if cursor.fetchone():
                 break
             else:
                 # If idCurso doesn't exist, generate a new one
                 idCurso = fake.random_int(min=1, max=numCursos)
 
-        query = f"INSERT INTO Turma (idCurso) VALUES ({idCurso})"
+        query = f"INSERT INTO Escola.Turma (idCurso) VALUES ({idCurso})"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -68,14 +68,14 @@ for _ in range(numDisciplinas):
 
         # Ensure that the generated idCurso exists in the Curso table
         while True:
-            cursor.execute(f"SELECT 1 FROM Curso WHERE idCurso = {idCurso}")
+            cursor.execute(f"SELECT 1 FROM Escola.Curso WHERE idCurso = {idCurso}")
             if cursor.fetchone():
                 break
             else:
                 # If idCurso doesn't exist, generate a new one
                 idCurso = fake.random_int(min=1, max=numCursos)
 
-        query = f"INSERT INTO Disciplina (nome, idCurso) VALUES ('{nome}', {idCurso})"
+        query = f"INSERT INTO Escola.Disciplina (nome, idCurso) VALUES ('{nome}', {idCurso})"
         cursor.execute(query)
         conexao.commit()
         print(f"Disciplina inserted: {nome}")
@@ -90,7 +90,7 @@ for _ in range(numAlunos):
         
         # Ensure that the generated idTurma exists in the Turma table
         while True:
-            cursor.execute(f"SELECT 1 FROM Turma WHERE idTurma = {idTurma}")
+            cursor.execute(f"SELECT 1 FROM Escola.Turma WHERE idTurma = {idTurma}")
             if cursor.fetchone():
                 break
             else:
@@ -100,7 +100,7 @@ for _ in range(numAlunos):
         nome = fake.name()
         contacto = fake.random_int(min=100000000, max=999999999)
         email = f"{nome.lower().replace(' ', '_')}@stu.ipbeja.com"
-        query = f"INSERT INTO Aluno (idTurma, nome, contacto, email) VALUES ({idTurma}, '{nome}', '{contacto}', '{email}')"
+        query = f"INSERT INTO Escola.Aluno (idTurma, nome, contacto, email) VALUES ({idTurma}, '{nome}', '{contacto}', '{email}')"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -112,7 +112,7 @@ for _ in range(numDocentes):
     try:
         nome = fake.name()
         morada = fake.address()
-        query = f"INSERT INTO Docente (nome, morada) VALUES ('{nome}', '{morada}')"
+        query = f"INSERT INTO Escola.Docente (nome, morada) VALUES ('{nome}', '{morada}')"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -128,14 +128,14 @@ for _ in range(numQuestionarios):
 
         # Ensure that the generated idDisciplina exists in the Disciplina table
         while True:
-            cursor.execute(f"SELECT 1 FROM Disciplina WHERE idDisciplina = {idDisciplina}")
+            cursor.execute(f"SELECT 1 FROM Escola.Disciplina WHERE idDisciplina = {idDisciplina}")
             if cursor.fetchone():
                 break
             else:
                 # If idDisciplina doesn't exist, generate a new one
                 idDisciplina = fake.random_int(min=1, max=numDisciplinas)
 
-        query = f"INSERT INTO Questionario (pergunta, idDisciplina) VALUES ('{pergunta}', {idDisciplina})"
+        query = f"INSERT INTO Escola.Questionario (pergunta, idDisciplina) VALUES ('{pergunta}', {idDisciplina})"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -149,7 +149,7 @@ for _ in range(numRespostas):
 
         # Ensure that the generated idQuestionario exists in the Questionario table
         while True:
-            cursor.execute(f"SELECT 1 FROM Questionario WHERE idQuestionario = {idQuestionario}")
+            cursor.execute(f"SELECT 1 FROM Escola.Questionario WHERE idQuestionario = {idQuestionario}")
             if cursor.fetchone():
                 break
             else:
@@ -160,7 +160,7 @@ for _ in range(numRespostas):
 
         # Ensure that the generated idAluno exists in the Aluno table
         while True:
-            cursor.execute(f"SELECT 1 FROM Aluno WHERE idAluno = {idAluno}")
+            cursor.execute(f"SELECT 1 FROM Escola.Aluno WHERE idAluno = {idAluno}")
             if cursor.fetchone():
                 break
             else:
@@ -168,7 +168,7 @@ for _ in range(numRespostas):
                 idAluno = fake.random_int(min=1, max=numAlunos)
 
         texto = fake.random_int(min=0, max=5)
-        query = f"INSERT INTO Resposta (texto, idAluno, idQuestionario) VALUES ('{texto}', {idAluno}, {idQuestionario})"
+        query = f"INSERT INTO Escola.Resposta (texto, idAluno, idQuestionario) VALUES ('{texto}', {idAluno}, {idQuestionario})"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:
@@ -182,7 +182,7 @@ for _ in range(numAvaliacoes):
 
         # Ensure that the generated idAluno exists in the Aluno table
         while True:
-            cursor.execute(f"SELECT 1 FROM Aluno WHERE idAluno = {idAluno}")
+            cursor.execute(f"SELECT 1 FROM Escola.Aluno WHERE idAluno = {idAluno}")
             if cursor.fetchone():
                 break
             else:
@@ -194,7 +194,7 @@ for _ in range(numAvaliacoes):
 
         # Ensure that the generated idDisciplina exists in the Disciplina table
         while True:
-            cursor.execute(f"SELECT 1 FROM Disciplina WHERE idDisciplina = {idDisciplina}")
+            cursor.execute(f"SELECT 1 FROM Escola.Disciplina WHERE idDisciplina = {idDisciplina}")
             if cursor.fetchone():
                 break
             else:
@@ -202,7 +202,7 @@ for _ in range(numAvaliacoes):
                 idDisciplina = fake.random_int(min=1, max=numDisciplinas)
 
         nota = fake.random_int(min=0, max=20)
-        query = f"INSERT INTO Avaliacao (idAluno, idDisciplina, nota) VALUES ({idAluno}, {idDisciplina}, {nota})"
+        query = f"INSERT INTO Escola.Avaliacao (idAluno, idDisciplina, nota) VALUES ({idAluno}, {idDisciplina}, {nota})"
         cursor.execute(query)
         conexao.commit()
     except pyodbc.Error as e:

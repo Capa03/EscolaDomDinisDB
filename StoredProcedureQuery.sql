@@ -1,49 +1,42 @@
 
--- Stored Procedure
-CREATE PROCEDURE Escola.CalcularMedia
+
+CREATE PROCEDURE usp_InsertAluno
+    @Nome VARCHAR(100),
+    @Contacto VARCHAR(20),
+    @Email VARCHAR(100),
+    @IdTurma INT
 AS
 BEGIN
-    SELECT AVG(nota) AS Media
-    FROM Escola.Avaliacao;
+    IF EXISTS (SELECT 1 FROM Turma WHERE IdTurma = @IdTurma)
+    BEGIN
+        INSERT INTO Aluno (Nome, Contacto, Email, IdTurma)
+        VALUES (@Nome, @Contacto, @Email, @IdTurma);
+        PRINT 'Aluno inserido com sucesso!';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Erro: A Turma especificada não existe!';
+    END
 END;
 
--- Trigger
-CREATE TRIGGER Escola.AtualizarMedia
-ON Escola.Avaliacao
-AFTER INSERT, UPDATE, DELETE
+
+CREATE TRIGGER tr_CheckNota
+ON Avaliacao
+AFTER INSERT
 AS
 BEGIN
-    EXEC Escola.CalcularMedia;
+    DECLARE @Nota INT;
+
+    SELECT @Nota = nota
+    FROM inserted;
+
+    IF @Nota < 0 OR @Nota > 20
+    BEGIN
+        PRINT 'Erro: A nota deve estar no intervalo de 0 a 20!';
+        ROLLBACK; -- Desfaz a transação devido a um erro
+    END
+    ELSE
+    BEGIN
+        PRINT 'Avaliação inserida com sucesso!';
+    END
 END;
-
-
-
--- Agendamento da atualização de estatísticas
-USE msdb;
-
-EXEC sp_add_job
-    @job_name = 'AtualizarEstatisticasJob',
-    @enabled = 1;
-
-EXEC sp_add_jobstep
-    @job_name = 'AtualizarEstatisticasJob',
-    @step_name = 'AtualizarEstatisticasStep',
-    @subsystem = 'TSQL',
-    @command = 'UPDATE STATISTICS EscolaDomDinis;';
-
-EXEC sp_add_schedule
-    @schedule_name = 'Semanalmente',
-    @freq_type = 8,  -- Semanalmente
-    @freq_interval = 1,  -- Todas as semanas (domingo)
-    @enabled = 1;
-
-EXEC sp_attach_schedule
-    @job_name = 'AtualizarEstatisticasJob',
-    @schedule_name = 'Semanalmente';
-
--- Agendamento da execução do job semanalmente
-EXEC sp_add_jobserver
-    @job_name = 'AtualizarEstatisticasJob',
-    @server_name = 'NomeDoServidor';
-
-
