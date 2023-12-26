@@ -30,7 +30,7 @@ numRespostas = 1000
 # Inserção de dados na tabela Curso
 for _ in range(numCursos):
     try:
-        nome = fake.name()
+        nome = fake.Educator.subject()
         
         query = f"INSERT INTO Escola.Curso (nome) VALUES ('{nome}')"
         cursor.execute(query)

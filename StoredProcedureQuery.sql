@@ -15,6 +15,7 @@ BEGIN
             (Nome, Contacto, Email, IdTurma)
         VALUES
             (@Nome, @Contacto, @Email, @IdTurma);
+END
 END;
 
 EXEC SPInsertAluno 'João', '912345678', 'Teste@TESTE.com', 1;
@@ -208,32 +209,6 @@ BEGIN
     END
 END;
 
-CREATE PROCEDURE Escola.usp_MudarAlunoDeTurma
-    @idAluno INT,
-    @novoIdTurma INT
-AS
-BEGIN
-    -- Verificar se a nova turma existe
-    IF NOT EXISTS (SELECT 1 FROM Escola.Turma WHERE idTurma = @novoIdTurma)
-    BEGIN
-        PRINT 'Erro: A Turma especificada não existe!';
-        RETURN;
-    END
-
-    -- Verificar se o aluno existe
-    IF NOT EXISTS (SELECT 1 FROM Escola.Aluno WHERE idAluno = @idAluno)
-    BEGIN
-        PRINT 'Erro: O Aluno especificado não existe!';
-        RETURN;
-    END
-
-    -- Atualizar a turma do aluno
-    UPDATE Escola.Aluno
-    SET IdTurma = @novoIdTurma
-    WHERE idAluno = @idAluno;
-
-    PRINT 'Aluno movido para a nova turma com sucesso.';
-END;
 
 ---------------------------------------
 EXEC SPAvaliacao 1, 1, 20;
@@ -260,3 +235,33 @@ BEGIN
         PRINT 'Avaliação inserida com sucesso!';
     END
 END;
+
+
+CREATE PROCEDURE SPMudarAlunoDeTurma
+    @idAluno INT,
+    @novoIdTurma INT
+AS
+BEGIN
+    -- Verificar se a nova turma existe
+    IF NOT EXISTS (SELECT 1 FROM Escola.Turma WHERE idTurma = @novoIdTurma)
+    BEGIN
+        PRINT 'Erro: A Turma especificada não existe!';
+        RETURN;
+    END
+
+    -- Verificar se o aluno existe
+    IF NOT EXISTS (SELECT 1 FROM Escola.Aluno WHERE idAluno = @idAluno)
+    BEGIN
+        PRINT 'Erro: O Aluno especificado não existe!';
+        RETURN;
+    END
+
+    -- Atualizar a turma do aluno
+    UPDATE Escola.Aluno
+    SET IdTurma = @novoIdTurma
+    WHERE idAluno = @idAluno;
+
+    PRINT 'Aluno movido para a nova turma com sucesso.';
+END;
+
+EXEC SPMudarAlunoDeTurma 1, 2;
