@@ -1,6 +1,6 @@
 
 
-CREATE PROCEDURE InsertAluno
+CREATE PROCEDURE SPInsertAluno
     @Nome VARCHAR(100),
     @Contacto VARCHAR(20),
     @Email VARCHAR(100),
@@ -8,10 +8,10 @@ CREATE PROCEDURE InsertAluno
 AS
 BEGIN
     IF EXISTS (SELECT 1
-    FROM Turma
+    FROM Escola.Turma
     WHERE IdTurma = @IdTurma)
     BEGIN
-        INSERT INTO Aluno
+        INSERT INTO Escola.Aluno
             (Nome, Contacto, Email, IdTurma)
         VALUES
             (@Nome, @Contacto, @Email, @IdTurma);
@@ -23,7 +23,10 @@ BEGIN
     END
 END;
 
-CREATE PROCEDURE Escola.usp_InsertCurso
+EXEC SPInsertAluno 'João', '912345678', 'Teste@TESTE.com', 1;
+
+
+CREATE PROCEDURE SPInsertCurso
     @nome VARCHAR(100)
 AS
 BEGIN
@@ -37,28 +40,10 @@ BEGIN
     PRINT 'Curso inserido com sucesso. ID do Curso: ' + CAST(@idCurso AS VARCHAR);
 END;
 
-CREATE PROCEDURE Escola.usp_InsertTurma
-    @idCurso INT
-AS
-BEGIN
-    -- Verificar se o curso existe
-    IF NOT EXISTS (SELECT 1 FROM Escola.Curso WHERE idCurso = @idCurso)
-    BEGIN
-        PRINT 'Erro: O Curso especificado não existe!';
-        RETURN;
-    END
+---------------------------------------
+EXEC SPInsertCurso 'CursoTeste';
 
-    -- Inserindo a nova turma
-    INSERT INTO Escola.Turma (idCurso)
-    VALUES (@idCurso);
-
-    -- Opcional: Retornar o ID da turma recém-criada
-    DECLARE @idTurma INT;
-    SELECT @idTurma = SCOPE_IDENTITY();
-    PRINT 'Turma inserida com sucesso. ID da Turma: ' + CAST(@idTurma AS VARCHAR);
-END;
-
-CREATE PROCEDURE Escola.usp_InsertDocente
+CREATE PROCEDURE SPInsertDocente
     @nome VARCHAR(100),
     @morada VARCHAR(100)
 AS
@@ -67,13 +52,16 @@ BEGIN
     INSERT INTO Escola.Docente (nome, morada)
     VALUES (@nome, @morada);
 
-    -- Opcional: Retornar o ID do docente recém-criado
+    -- Opcional: Você pode querer retornar o ID do docente recém-criado
     DECLARE @idDocente INT;
     SELECT @idDocente = SCOPE_IDENTITY();
     PRINT 'Docente inserido com sucesso. ID do Docente: ' + CAST(@idDocente AS VARCHAR);
 END;
 
-CREATE PROCEDURE Escola.usp_InsertResposta
+---------------------------
+EXEC SPInsertDocente 'DocenteTeste', 'MoradaTeste';
+
+CREATE PROCEDURE SPInsertResposta
     @texto VARCHAR(255),
     @idAluno INT,
     @idQuestionario INT
@@ -102,8 +90,11 @@ BEGIN
     PRINT 'Resposta inserida com sucesso. ID da Resposta: ' + CAST(@idResposta AS VARCHAR);
 END;
 
+---------------------------------------
+EXEC SPInsertResposta 'RespostaTeste', 1, 1;
+
 CREATE PROCEDURE SPInsertTurma
-    @idCurso INT,
+    @idCurso INT
 AS
 BEGIN
     IF EXISTS (SELECT 1
@@ -121,6 +112,9 @@ BEGIN
         PRINT 'Erro: A Curso especificado não existe!';
     END
 END;
+
+---------------------------------------
+EXEC SPInsertTurma 1;
 
 
 CREATE PROCEDURE SPInsertDisciplina
@@ -143,6 +137,9 @@ BEGIN
         PRINT 'Erro: A Curso especificado não existe!';
     END
 END;
+
+---------------------------------------
+EXEC SPInsertDisciplina 'DisciplinaTeste', 1;
 
 
 CREATE PROCEDURE SPQuestionario
@@ -175,6 +172,9 @@ BEGIN
         PRINT 'Erro: A Disciplina especificada não existe!';
     END
 END;
+
+---------------------------------------
+EXEC SPQuestionario 'QuestionarioTeste', 1, 1;
 
 CREATE PROCEDURE SPAvaliacao
     @idAluno INT,
@@ -213,6 +213,11 @@ BEGIN
         PRINT 'Erro: O Aluno especificado não existe!';
     END
 END;
+
+
+---------------------------------------
+EXEC SPAvaliacao 1, 1, 20;
+
 
 CREATE TRIGGER tr_CheckNota
 ON Avaliacao
