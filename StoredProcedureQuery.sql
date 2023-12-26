@@ -177,36 +177,7 @@ CREATE PROCEDURE SPAvaliacao
     @Nota INT
 AS
 BEGIN
-    IF EXISTS (SELECT 1
-    FROM Escola.Aluno
-    WHERE idAluno = @idAluno)
-    BEGIN
-        IF EXISTS (SELECT 1
-        FROM Escola.Disciplina
-        WHERE idDisciplina = @idDisciplina)
-        BEGIN
-            IF @Nota >= 0 AND @Nota <= 20
-            BEGIN
-                INSERT INTO Escola.Avaliacao
-                    (idAluno, idDisciplina, Nota)
-                VALUES
-                    (@idAluno, @idDisciplina, @Nota);
-                PRINT 'Avaliacao inserida com sucesso!';
-            END
-            ELSE
-            BEGIN
-                PRINT 'Erro: A nota deve estar no intervalo de 0 a 20!';
-            END
-        END
-        ELSE
-        BEGIN
-            PRINT 'Erro: A Disciplina especificada não existe!';
-        END
-    END
-    ELSE
-    BEGIN
-        PRINT 'Erro: O Aluno especificado não existe!';
-    END
+ VALUES (@idAluno, @idDisciplina, @Nota);
 END;
 
 
