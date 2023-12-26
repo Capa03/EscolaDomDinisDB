@@ -65,4 +65,11 @@ CREATE TABLE Avaliacao (
  FOREIGN KEY (idDisciplina) REFERENCES Disciplina(idDisciplina)
 );
 
-
+CREATE TABLE Escola.HistoricoInsercaoAluno (
+    IdHistorico INT PRIMARY KEY IDENTITY(1,1), -- ID do registro histórico
+    Nome VARCHAR(100),                         -- Nome do aluno inserido
+    Contacto VARCHAR(20),                      -- Contacto do aluno inserido
+    Email VARCHAR(100),                        -- Email do aluno inserido
+    IdTurma INT,                               -- ID da turma do aluno inserido
+    DataInsercao DATETIME                      -- Data e hora da inserção
+);

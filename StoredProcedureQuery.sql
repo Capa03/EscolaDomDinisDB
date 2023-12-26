@@ -15,12 +15,6 @@ BEGIN
             (Nome, Contacto, Email, IdTurma)
         VALUES
             (@Nome, @Contacto, @Email, @IdTurma);
-        PRINT 'Aluno inserido com sucesso!';
-    END
-    ELSE
-    BEGIN
-        PRINT 'Erro: A Turma especificada não existe!';
-    END
 END;
 
 EXEC SPInsertAluno 'João', '912345678', 'Teste@TESTE.com', 1;
