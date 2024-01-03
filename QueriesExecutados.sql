@@ -143,6 +143,13 @@ CREATE TABLE Escola.Avaliacao (
  FOREIGN KEY (idDisciplina) REFERENCES Escola.Disciplina(idDisciplina)
 )ON FILEGROUP2;
 
+CREATE TABLE Escola.HistoricoMudancaTurma (
+    IdHistorico INT PRIMARY KEY IDENTITY(1,1),  
+    IdAluno INT,                               
+    IdTurmaAntiga INT,                         
+    IdTurmaNova INT,                           
+    DataMudanca DATETIME                       
+)ON FILEGROUP3;
 
 -- Ver tabelas nos filegroups
 
@@ -179,9 +186,7 @@ REVERT;
 
 -- Criar Stored Procedures
 
-
-
-CREATE PROCEDURE SPInsertAluno
+CREATE PROCEDURE Escola.SPInsertAluno
     @Nome VARCHAR(100),
     @Contacto VARCHAR(20),
     @Email VARCHAR(100),
@@ -207,7 +212,7 @@ END;
 EXEC SPInsertAluno 'João', '912345678', 'Teste@TESTE.com', 1;
 
 
-CREATE PROCEDURE SPInsertCurso
+CREATE PROCEDURE Escola.SPInsertCurso
     @nome VARCHAR(100)
 AS
 BEGIN
@@ -224,7 +229,7 @@ END;
 ---------------------------------------
 EXEC SPInsertCurso 'CursoTeste';
 
-CREATE PROCEDURE SPInsertDocente
+CREATE PROCEDURE Escola.SPInsertDocente
     @nome VARCHAR(100),
     @morada VARCHAR(100)
 AS
@@ -242,7 +247,7 @@ END;
 ---------------------------
 EXEC SPInsertDocente 'DocenteTeste', 'MoradaTeste';
 
-CREATE PROCEDURE SPInsertResposta
+CREATE PROCEDURE Escola.SPInsertResposta
     @texto VARCHAR(255),
     @idAluno INT,
     @idQuestionario INT
@@ -274,7 +279,7 @@ END;
 ---------------------------------------
 EXEC SPInsertResposta 'RespostaTeste', 1, 1;
 
-CREATE PROCEDURE SPInsertTurma
+CREATE PROCEDURE Escola.SPInsertTurma
     @idCurso INT
 AS
 BEGIN
@@ -298,7 +303,7 @@ END;
 EXEC SPInsertTurma 1;
 
 
-CREATE PROCEDURE SPInsertDisciplina
+CREATE PROCEDURE Escola.SPInsertDisciplina
     @Nome VARCHAR(50),
     @idCurso INT
 AS
@@ -323,7 +328,7 @@ END;
 EXEC SPInsertDisciplina 'DisciplinaTeste', 1;
 
 
-CREATE PROCEDURE SPQuestionario
+CREATE PROCEDURE Escola.SPQuestionario
     @Pergunta VARCHAR(255),
     @idDisciplina INT,
     @idDocente INT
@@ -357,7 +362,7 @@ END;
 ---------------------------------------
 EXEC SPQuestionario 'QuestionarioTeste', 1, 1;
 
-CREATE PROCEDURE SPAvaliacao
+CREATE PROCEDURE Escola.SPAvaliacao
     @idAluno INT,
     @idDisciplina INT,
     @Nota INT
@@ -399,29 +404,105 @@ END;
 ---------------------------------------
 EXEC SPAvaliacao 1, 1, 20;
 
-
-CREATE TRIGGER tr_CheckNota
-ON Avaliacao
-AFTER INSERT
+CREATE TRIGGER Escola.trg_AfterUpdateAluno
+ON Escola.Aluno
+AFTER UPDATE
 AS
 BEGIN
-    DECLARE @Nota INT;
-
-    SELECT @Nota = nota
-    FROM inserted;
-
-    IF @Nota < 0 OR @Nota > 20
+    IF UPDATE(IdTurma) -- Verifica se a coluna IdTurma foi atualizada
     BEGIN
-        PRINT 'Erro: A nota deve estar no intervalo de 0 a 20!';
-        ROLLBACK;
-    -- Desfaz a transação devido a um erro
-    END
-    ELSE
-    BEGIN
-        PRINT 'Avaliação inserida com sucesso!';
+        -- Inserir informações na tabela de histórico
+        INSERT INTO Escola.HistoricoMudancaTurma (IdAluno, IdTurmaAntiga, IdTurmaNova, DataMudanca)
+        SELECT 
+            i.IdAluno, 
+            d.IdTurma AS IdTurmaAntiga, 
+            i.IdTurma AS IdTurmaNova, 
+            GETDATE()
+        FROM inserted i
+        INNER JOIN deleted d ON i.IdAluno = d.IdAluno
+        WHERE i.IdTurma <> d.IdTurma; -- Inserir apenas se o IdTurma foi realmente alterado
     END
 END;
 
+
+-- Revogar acesso a stored procedures ao utilizador Aluno
+REVOKE EXECUTE ON OBJECT::Escola.SPInsertAluno TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPInsertCurso TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPInsertDocente TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPInsertResposta TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPInsertTurma TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPQuestionario TO Aluno;
+REVOKE EXECUTE ON OBJECT::Escola.SPAvaliacao TO Aluno;
+
+-- Garantir permissao de backup ao docente
+USE EscolaDomDinis;
+GO
+
+GRANT BACKUP DATABASE TO Docente;
+
+--Backup Full
+BACKUP DATABASE [EscolaDomDinis] TO DISK = N'C:\Backup\full.bak' WITH NOFORMAT, NOINIT, NAME =
+N'EscolaDomDinis-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb.backupset where database_name=N'EscolaDomDinis' and
+backup_set_id=(select max(backup_set_id) from msdb..backupset where
+database_name=N'EscolaDomDinis' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''EscolaDomDinis''
+not found.', 16, 1) end
+RESTORE VERIFYONLY FROM DISK = N'C:\Backup\full.bak' WITH FILE = @backupSetId,
+NOUNLOAD, NOREWIND
+GO
+
+--Backup Diferencial
+BACKUP DATABASE [EscolaDomDinis] TO DISK = N'C:\Backup\diferencial.dif' WITH DIFFERENTIAL , NOFORMAT,
+NOINIT, NAME = N'EscolaDomDinis-Differential Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS =
+10
+GO
+declare @backupSetId as int
+select @backupSetId = position from msdb..backupset where database_name=N'EscolaDomDinis' and
+backup_set_id=(select max(backup_set_id) from msdb..backupset where
+database_name=N'EscolaDomDinis' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''EscolaDomDinis''
+not found.', 16, 1) end
+RESTORE VERIFYONLY FROM DISK = N'C:\Backup\diferencial.dif' WITH FILE = @backupSetId,
+NOUNLOAD, NOREWIND
+GO
+--Backup Log
+BACKUP LOG [EscolaDomDinis] TO DISK = N'C:\Backup\manual.log' WITH NOFORMAT, NOINIT, NAME =
+N'EscolaDomDinis-Transaction Log Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10
+GO
+declare @backupSetId as int
+
+select @backupSetId = position from msdb..backupset where database_name=N'EscolaDomDinis' and
+backup_set_id=(select max(backup_set_id) from msdb..backupset where
+database_name=N'EscolaDomDinis' )
+if @backupSetId is null begin raiserror(N'Verify failed. Backup information for database ''EscolaDomDinis''
+not found.', 16, 1) end
+RESTORE VERIFYONLY FROM DISK = N'C:\Backup\manual.log' WITH FILE = @backupSetId,
+NOUNLOAD, NOREWIND
+GO
+--Drop Database
+USE [master]
+GO
+--Set Single-Mode User
+ALTER DATABASE EscolaDomDinis SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+DROP DATABASE EscolaDomDinis
+--Set Multi-Mode User
+ALTER DATABASE EscolaDomDinis
+SET MULTI_USER;
+USE master;
+GO
+ALTER DATABASE EscolaDomDinis
+SET SINGLE_USER
+WITH ROLLBACK IMMEDIATE;
+GO
+ALTER DATABASE EscolaDomDinis
+SET READ_ONLY;
+GO
+ALTER DATABASE EscolaDomDinis
+SET MULTI_USER;
+GO
 
 
 

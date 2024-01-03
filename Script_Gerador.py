@@ -27,10 +27,12 @@ numDocentes = 10
 numQuestionarios = 1000
 numRespostas = 1000
 
+listaDiscplinas = ['Matemática', 'Português', 'Inglês', 'Francês', 'Espanhol', 'História', 'Geografia', 'Ciências', 'Físico-Química', 'Educação Física', 'Educação Visual', 'Educação Tecnológica', 'Educação Musical', 'TIC', 'Formação Cívica', 'EMRC', 'Oferta Complementar', 'Estudo Acompanhado', 'Apoio ao Estudo', 'Projeto', 'Área de Projeto', 'Estágio', 'Formação em Contexto de Trabalho']
+listaCursos = ['Engenharia Informatica', 'Engenharia Civil', 'Engenharia Mecânica', 'Engenharia Eletrotécnica', 'Engenharia Biomédica', 'Engenharia Química', 'Engenharia Alimentar', 'Engenharia do Ambiente', 'Engenharia de Energias Renováveis', 'Engenharia de Produção Industrial', 'Engenharia de Segurança do Trabalho', 'Engenharia de Telecomunicações e Informática', 'Engenharia de Sistemas Informáticos', 'Engenharia de Redes de Comunicações', 'Engenharia de Computadores e Telemática', 'Engenharia de Instrumentação e Metrologia', 'Engenharia de Materiais', 'Engenharia de Minas', 'Engenharia de Petróleos', 'Engenharia de Produção', 'Engenharia de Sistemas', 'Engenharia de Software', 'Engenharia de Telecomunicações', 'Engenharia de Transportes', 'Engenharia Elétrica', 'Engenharia Eletrônica', 'Engenharia Florestal', 'Engenharia Hídrica', 'Engenharia Industrial', 'Engenharia Mecatrônica', 'Engenharia Metalúrgica', 'Engenharia Naval', 'Engenharia Nuclear', 'Engenharia de Pesca', 'Engenharia de Produção', 'Engenharia de Produção Mecânica', 'Engenharia de Produção Química', 'Engenharia de Segurança do Trabalho', 'Engenharia de Sistemas', 'Engenharia de Software', 'Engenharia de Telecomunicações', 'Engenharia de Transportes', 'Engenharia Elétrica', 'Engenharia Eletrônica', 'Engenharia Florestal', 'Engenharia Hídrica', 'Engenharia Industrial', 'Engenharia Mecatrônica', 'Engenharia Metalúrgica', 'Engenharia Naval', 'Engenharia Nuclear', 'Engenharia de Pesca', 'Engenharia de Produção', 'Engenharia de Produção Mecânica', 'Engenharia de Produção Química', 'Engenharia de Segurança do Trabalho',]
 # Inserção de dados na tabela Curso
 for _ in range(numCursos):
     try:
-        nome = fake.Educator.subject()
+        nome = fake.random_element(elements=listaCursos)
         
         query = f"INSERT INTO Escola.Curso (nome) VALUES ('{nome}')"
         cursor.execute(query)
@@ -61,7 +63,7 @@ for _ in range(numTurmas):
 # Inserção de dados na tabela Disciplina
 for _ in range(numDisciplinas):
     try:
-        nome = fake.name()
+        nome = fake.random_element(elements=listaDiscplinas)
 
         # Generate a valid idCurso value
         idCurso = fake.random_int(min=1, max=numCursos)
